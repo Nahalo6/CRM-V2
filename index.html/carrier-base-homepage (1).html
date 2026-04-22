@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carrier Base — The Operating System for Trucking Insurance</title>
+<meta name="description" content="The CRM built by trucking insurance agency owners and underwriters.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0b1730;
+  --navy-2:#152544;
+  --navy-3:#1b2a4a;
+  --blue:#2563eb;
+  --blue-2:#3b82f6;
+  --blue-pale:#eff6ff;
+  --blue-paler:#f5f9ff;
+  --white:#ffffff;
+  --off:#f8fafc;
+  --cream:#f1f5f9;
+  --ink:#0b1730;
+  --muted:#64748b;
+  --muted-2:#94a3b8;
+  --line:#e2e8f0;
+  --serif:'Instrument Serif',Georgia,serif;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:90px}
+body{font-family:var(--sans);background:var(--white);color:var(--ink);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img,svg{max-width:100%;display:block}
+button{font-family:var(--sans);cursor:pointer;border:none;background:none}
+.mono{font-family:var(--mono);font-size:11px;letter-spacing:0.04em;text-transform:uppercase;font-weight:500}
+
+/* ============ LOGO ============ */
+.logo-mark{flex-shrink:0}
+.brand{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:600;color:var(--ink);letter-spacing:-0.01em}
+.brand-sub{font-size:9px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:0.08em;margin-top:2px;font-family:var(--mono)}
+
+/* ============ NAV ============ */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:18px 0;transition:all .3s}
+.nav.scrolled{background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--line);padding:12px 0}
+.nav-inner{max-width:1320px;margin:0 auto;padding:0 36px;display:flex;align-items:center;justify-content:space-between}
+.nav-links{display:flex;gap:4px;align-items:center;background:var(--cream);padding:4px;border-radius:100px}
+.nav-links a{font-size:13px;color:var(--ink);font-weight:500;padding:8px 16px;border-radius:100px;transition:all .2s}
+.nav-links a:hover{background:var(--white)}
+.nav-cta{display:flex;gap:8px;align-items:center}
+
+/* ============ BUTTONS ============ */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:100px;font-size:13px;font-weight:500;transition:all .25s;white-space:nowrap;cursor:pointer;border:none;font-family:var(--sans)}
+.btn svg{transition:transform .25s;flex-shrink:0}
+.btn:hover svg{transform:translateX(3px)}
+.btn-primary{background:var(--blue);color:var(--white)}
+.btn-primary:hover{background:#1d4ed8;box-shadow:0 8px 24px -8px rgba(37,99,235,0.5)}
+.btn-dark{background:var(--navy);color:var(--white)}
+.btn-dark:hover{background:var(--navy-2)}
+.btn-light{background:var(--white);color:var(--ink);border:1px solid var(--line)}
+.btn-light:hover{border-color:var(--ink)}
+.btn-ghost{background:transparent;color:var(--ink);padding:12px 16px}
+.btn-ghost:hover{background:var(--cream)}
+
+/* ============ HERO ============ */
+.hero{padding:140px 0 100px;position:relative;overflow:hidden;background:var(--white)}
+/* Grid background pattern */
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(37,99,235,0.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(37,99,235,0.04) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse at center,#000 40%,transparent 75%);
+  -webkit-mask-image:radial-gradient(ellipse at center,#000 40%,transparent 75%);
+  pointer-events:none;
+}
+.hero::after{content:'';position:absolute;top:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(37,99,235,0.08) 0%,transparent 65%);border-radius:50%;pointer-events:none}
+.hero-inner{max-width:1320px;margin:0 auto;padding:0 36px;position:relative;z-index:1}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:var(--blue-pale);border:1px solid #bfdbfe;border-radius:100px;margin-bottom:28px}
+.hero-eyebrow .dot{width:6px;height:6px;background:var(--blue);border-radius:50%;animation:pulse 2s infinite}
+.hero-eyebrow span{font-family:var(--mono);font-size:11px;color:var(--blue);letter-spacing:0.06em;text-transform:uppercase;font-weight:500}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.hero h1{font-family:var(--sans);font-weight:600;font-size:clamp(42px,6.5vw,78px);line-height:1;letter-spacing:-0.035em;color:var(--ink);margin-bottom:28px;max-width:900px}
+.hero h1 em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--blue);letter-spacing:-0.02em}
+.hero-lede{font-size:17px;color:var(--muted);line-height:1.55;max-width:540px;margin-bottom:36px}
+.hero-ctas{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+/* Hero stats row */
+.hero-stats{margin-top:72px;padding-top:32px;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);gap:32px;max-width:900px}
+.hero-stat .num{font-size:28px;font-weight:600;color:var(--ink);letter-spacing:-0.02em;line-height:1;margin-bottom:4px}
+.hero-stat .num em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--blue)}
+.hero-stat .lbl{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase}
+
+/* ============ TRUCK VISUAL BAR ============ */
+.truck-bar{background:var(--navy);padding:0;position:relative;overflow:hidden;border-top:1px solid var(--navy-2);border-bottom:1px solid var(--navy-2)}
+.truck-bar-inner{max-width:1320px;margin:0 auto;padding:40px 36px;display:grid;grid-template-columns:1fr auto 1fr;gap:40px;align-items:center}
+.truck-bar-text{color:var(--white)}
+.truck-bar-text .mono{color:var(--blue-2);margin-bottom:8px;display:block}
+.truck-bar-text h3{font-size:22px;font-weight:500;letter-spacing:-0.01em;line-height:1.3}
+.truck-bar-text h3 em{font-family:var(--serif);font-style:italic;color:var(--blue-2);font-weight:400}
+.truck-bar-text.right{text-align:right}
+.truck-bar-svg{flex-shrink:0}
+
+/* ============ FOUNDERS ============ */
+.founders{background:var(--off);padding:120px 0;position:relative;overflow:hidden}
+.founders-inner{max-width:1320px;margin:0 auto;padding:0 36px;position:relative}
+.founders-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.founders-eyebrow{display:inline-flex;align-items:center;gap:10px;margin-bottom:24px}
+.founders-eyebrow .line{width:32px;height:1px;background:var(--blue)}
+.founders-eyebrow span{color:var(--blue);font-family:var(--mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;font-weight:500}
+.founders h2{font-weight:600;font-size:clamp(36px,4.5vw,56px);line-height:1.05;letter-spacing:-0.025em;color:var(--ink);margin-bottom:24px}
+.founders h2 em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--blue)}
+.founders p{font-size:16px;color:var(--muted);line-height:1.65;margin-bottom:16px;max-width:500px}
+.founders p strong{color:var(--ink);font-weight:500}
+.founder-badges{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap}
+.founder-badge{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:18px 20px;flex:1;min-width:180px}
+.founder-badge .icon{width:32px;height:32px;background:var(--blue-pale);border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;color:var(--blue)}
+.founder-badge h4{font-size:14px;color:var(--ink);margin-bottom:2px;font-weight:600}
+.founder-badge p{font-size:12px;color:var(--muted);margin:0;line-height:1.5}
+
+/* Founder illustration panel */
+.founders-visual{background:var(--navy);border-radius:20px;padding:48px;position:relative;overflow:hidden;aspect-ratio:1/1;display:flex;flex-direction:column;justify-content:space-between}
+.founders-visual::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(59,130,246,0.06) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(59,130,246,0.06) 1px,transparent 1px);
+  background-size:40px 40px;
+  mask-image:radial-gradient(ellipse at top right,#000 20%,transparent 70%);
+  -webkit-mask-image:radial-gradient(ellipse at top right,#000 20%,transparent 70%);
+}
+.founders-visual::after{content:'';position:absolute;top:-100px;right:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(59,130,246,0.15) 0%,transparent 60%);border-radius:50%;pointer-events:none}
+.fv-content{position:relative;z-index:1}
+.fv-quote{color:var(--white);font-family:var(--serif);font-style:italic;font-size:28px;line-height:1.3;letter-spacing:-0.01em;margin-bottom:24px}
+.fv-quote::before{content:'\201C';color:var(--blue-2);font-size:56px;line-height:0;vertical-align:-12px;margin-right:4px}
+.fv-attr{position:relative;z-index:1;color:rgba(255,255,255,0.7);font-size:13px;display:flex;align-items:center;gap:12px}
+.fv-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#60a5fa);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:20px;color:#fff;flex-shrink:0}
+.fv-attr strong{color:#fff;font-weight:500;display:block}
+.fv-attr span{font-size:10px;font-family:var(--mono);text-transform:uppercase;letter-spacing:0.06em}
+
+/* ============ FEATURES ============ */
+.features{padding:120px 0;background:var(--white)}
+.features-inner{max-width:1320px;margin:0 auto;padding:0 36px}
+.features-head{margin-bottom:56px;max-width:800px}
+.features-head .mono{color:var(--blue);margin-bottom:16px;display:block}
+.features-head h2{font-weight:600;font-size:clamp(36px,4.5vw,56px);line-height:1.05;letter-spacing:-0.025em;color:var(--ink)}
+.features-head h2 em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--muted)}
+.features-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.feature-card{background:var(--off);border:1px solid var(--line);border-radius:20px;padding:32px;position:relative;overflow:hidden;transition:all .3s}
+.feature-card:hover{transform:translateY(-4px);border-color:var(--blue);box-shadow:0 20px 40px -20px rgba(37,99,235,0.2)}
+.feature-card.dark{background:var(--navy);color:var(--white);border-color:transparent}
+.feature-card.dark:hover{border-color:var(--blue)}
+.feature-card.blue{background:var(--blue);color:var(--white);border-color:transparent}
+.feature-card.blue:hover{background:#1d4ed8;border-color:transparent}
+.fc-label{font-family:var(--mono);font-size:10px;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55;margin-bottom:16px;display:block;font-weight:500}
+.fc-title{font-size:24px;line-height:1.1;letter-spacing:-0.015em;margin-bottom:10px;font-weight:600}
+.fc-title em{font-family:var(--serif);font-style:italic;font-weight:400}
+.fc-desc{font-size:13px;line-height:1.55;opacity:0.72;max-width:320px}
+.fc-screenshot{margin-top:24px;border-radius:12px;overflow:hidden;background:var(--white);border:1px solid rgba(15,23,42,0.08)}
+.fc-large{grid-column:span 7;min-height:520px}
+.fc-medium{grid-column:span 5;min-height:520px}
+.fc-third{grid-column:span 4;min-height:400px}
+
+/* Screenshot mockups */
+.ss{font-family:var(--sans);font-size:11px;color:var(--ink);background:var(--white)}
+.ss-hdr{background:var(--off);padding:10px 14px;display:flex;gap:6px;align-items:center;border-bottom:1px solid var(--line)}
+.ss-dot{width:9px;height:9px;border-radius:50%}
+.ss-body{padding:14px}
+.ss-name{font-weight:600;font-size:12px;color:var(--ink)}
+.ss-sub{font-size:10px;color:var(--muted)}
+.ss-bar-wrap{display:flex;align-items:center;gap:10px;font-size:10px;padding:5px 0}
+.ss-bar-wrap .lbl{width:78px;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:0.04em}
+.ss-bar-wrap .bar{flex:1;height:5px;background:var(--cream);border-radius:100px;overflow:hidden}
+.ss-bar-wrap .bar-fill{height:100%;border-radius:100px}
+.ss-bar-wrap .val{width:24px;text-align:right;font-weight:600;font-size:10px;color:var(--ink)}
+
+/* ============ PROCESS ============ */
+.process{padding:120px 0;background:var(--off)}
+.process-inner{max-width:1320px;margin:0 auto;padding:0 36px}
+.process-head{margin-bottom:64px;max-width:800px}
+.process-head .mono{color:var(--blue);margin-bottom:16px;display:block}
+.process-head h2{font-weight:600;font-size:clamp(36px,4.5vw,56px);line-height:1.05;letter-spacing:-0.025em;color:var(--ink)}
+.process-head h2 em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--muted)}
+.process-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.process-step{position:relative;padding:28px;background:var(--white);border:1px solid var(--line);border-radius:16px;transition:all .3s}
+.process-step:hover{transform:translateY(-4px);border-color:var(--blue);box-shadow:0 16px 32px -16px rgba(37,99,235,0.18)}
+.process-num{font-family:var(--mono);font-size:11px;color:var(--blue);font-weight:600;margin-bottom:24px;letter-spacing:0.04em}
+.process-step h3{font-size:20px;line-height:1.15;letter-spacing:-0.015em;color:var(--ink);margin-bottom:8px;font-weight:600}
+.process-step p{font-size:13px;color:var(--muted);line-height:1.6}
+
+/* ============ PRICING ============ */
+.pricing{padding:120px 0;background:var(--white)}
+.pricing-inner{max-width:1320px;margin:0 auto;padding:0 36px}
+.pricing-head{margin-bottom:56px;text-align:center;max-width:700px;margin-left:auto;margin-right:auto}
+.pricing-head .mono{color:var(--blue);margin-bottom:16px;display:inline-block}
+.pricing-head h2{font-weight:600;font-size:clamp(36px,4.5vw,56px);line-height:1.05;letter-spacing:-0.025em;color:var(--ink);margin-bottom:14px}
+.pricing-head h2 em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--muted)}
+.pricing-head p{font-size:15px;color:var(--muted)}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
+.price-card{background:var(--off);border:1px solid var(--line);border-radius:20px;padding:32px;transition:all .3s}
+.price-card:hover{transform:translateY(-4px);border-color:var(--blue);box-shadow:0 20px 40px -20px rgba(37,99,235,0.2)}
+.price-card.featured{background:var(--navy);color:var(--white);transform:scale(1.03);position:relative;border-color:transparent}
+.price-card.featured:hover{transform:scale(1.03) translateY(-4px)}
+.price-badge{display:inline-block;background:var(--blue-2);color:var(--white);font-family:var(--mono);font-size:9px;padding:5px 12px;border-radius:100px;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:16px;font-weight:500}
+.price-name{font-size:22px;margin-bottom:4px;letter-spacing:-0.01em;font-weight:600}
+.price-sub{font-size:12px;opacity:0.6;margin-bottom:24px}
+.price-amt{font-size:48px;line-height:1;letter-spacing:-0.03em;font-weight:600;margin-bottom:28px}
+.price-amt .cur{font-size:22px;vertical-align:super;opacity:0.5;margin-right:2px}
+.price-amt .per{font-size:13px;opacity:0.5;margin-left:4px;font-weight:400}
+.price-features{list-style:none;padding-top:22px;border-top:1px solid var(--line);margin-bottom:24px}
+.price-card.featured .price-features{border-top-color:rgba(255,255,255,0.1)}
+.price-features li{display:flex;gap:10px;align-items:flex-start;font-size:13px;margin-bottom:11px;line-height:1.5}
+.price-features svg{flex-shrink:0;color:var(--blue);margin-top:2px}
+.price-card.featured .price-features svg{color:var(--blue-2)}
+.price-cta{width:100%;justify-content:center;padding:14px}
+
+/* ============ FAQ ============ */
+.faq{padding:120px 0;background:var(--off)}
+.faq-inner{max-width:900px;margin:0 auto;padding:0 36px}
+.faq-head{margin-bottom:48px}
+.faq-head .mono{color:var(--blue);margin-bottom:16px;display:block}
+.faq-head h2{font-weight:600;font-size:clamp(36px,4.5vw,56px);line-height:1.05;letter-spacing:-0.025em;color:var(--ink)}
+.faq-head h2 em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--muted)}
+.faq-item{background:var(--white);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden;transition:all .2s}
+.faq-item:hover{border-color:var(--blue)}
+.faq-q{padding:22px 26px;font-size:16px;font-weight:600;color:var(--ink);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:20px;letter-spacing:-0.01em}
+.faq-q::after{content:'+';font-size:26px;font-weight:300;color:var(--blue);transition:transform .3s;flex-shrink:0;line-height:0.5}
+.faq-item.open .faq-q::after{transform:rotate(45deg)}
+.faq-a{padding:0 26px;max-height:0;overflow:hidden;transition:all .3s ease;color:var(--muted);font-size:14px;line-height:1.65}
+.faq-item.open .faq-a{padding:0 26px 22px;max-height:400px}
+
+/* ============ FINAL CTA ============ */
+.final-cta{background:var(--navy);color:var(--white);padding:120px 0;text-align:center;position:relative;overflow:hidden}
+.final-cta::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(59,130,246,0.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(59,130,246,0.05) 1px,transparent 1px);
+  background-size:50px 50px;
+  mask-image:radial-gradient(ellipse at center,#000 30%,transparent 70%);
+  -webkit-mask-image:radial-gradient(ellipse at center,#000 30%,transparent 70%);
+}
+.final-cta::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:900px;height:900px;background:radial-gradient(circle,rgba(59,130,246,0.12) 0%,transparent 60%);pointer-events:none}
+.final-cta-inner{max-width:820px;margin:0 auto;padding:0 36px;position:relative;z-index:1}
+.final-cta h2{font-weight:600;font-size:clamp(44px,6vw,72px);line-height:1.05;letter-spacing:-0.03em;margin-bottom:20px}
+.final-cta h2 em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--blue-2)}
+.final-cta p{font-size:17px;color:rgba(255,255,255,0.65);max-width:480px;margin:0 auto 32px;line-height:1.55}
+.final-cta-ctas{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+/* ============ FOOTER ============ */
+.footer{background:var(--navy);color:var(--white);padding:56px 0 28px;border-top:1px solid rgba(255,255,255,0.06)}
+.footer-inner{max-width:1320px;margin:0 auto;padding:0 36px}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.footer-brand .brand{color:var(--white);margin-bottom:14px}
+.footer-brand .brand-sub{color:rgba(255,255,255,0.4)}
+.footer-brand p{font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6;max-width:300px;margin-top:8px}
+.footer-col h5{font-family:var(--mono);font-size:10px;color:var(--blue-2);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:16px;font-weight:500}
+.footer-col ul{list-style:none}
+.footer-col li{margin-bottom:10px}
+.footer-col a{font-size:13px;color:rgba(255,255,255,0.7);transition:color .2s}
+.footer-col a:hover{color:var(--white)}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
+.footer-bottom p,.footer-bottom a{font-size:12px;color:rgba(255,255,255,0.4)}
+.footer-legal{display:flex;gap:22px}
+
+/* ============ MODAL ============ */
+.modal-overlay{position:fixed;inset:0;background:rgba(11,23,48,0.75);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;z-index:2000;padding:20px}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--white);border-radius:20px;max-width:520px;width:100%;padding:44px 40px;position:relative;max-height:90vh;overflow-y:auto}
+.modal-close{position:absolute;top:18px;right:18px;width:34px;height:34px;background:var(--cream);border-radius:50%;font-size:18px;color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
+.modal-close:hover{background:var(--line)}
+.modal-box h3{font-size:28px;letter-spacing:-0.02em;color:var(--ink);margin-bottom:6px;font-weight:600}
+.modal-box .sub{color:var(--muted);font-size:14px;margin-bottom:24px}
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-family:var(--mono);font-size:10px;color:var(--ink);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:6px;font-weight:500}
+.form-row input,.form-row select,.form-row textarea{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;font-size:14px;font-family:var(--sans);background:var(--white);outline:none;transition:all .2s;color:var(--ink)}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
+.form-row textarea{min-height:80px;resize:vertical}
+
+/* RESPONSIVE */
+@media(max-width:1000px){
+  .nav-links{display:none}
+  .hero{padding:120px 0 60px}
+  .founders-grid,.truck-bar-inner{grid-template-columns:1fr;gap:40px}
+  .truck-bar-text.right{text-align:left}
+  .features-grid{grid-template-columns:1fr;gap:14px}
+  .fc-large,.fc-medium,.fc-third{grid-column:1;min-height:auto}
+  .process-steps,.pricing-grid,.hero-stats{grid-template-columns:repeat(2,1fr);gap:16px}
+  .footer-top{grid-template-columns:1fr 1fr;gap:32px}
+  section,.founders,.final-cta{padding:72px 0!important}
+  .founders-visual{aspect-ratio:auto;padding:36px}
+  .nav-inner,.hero-inner,.features-inner,.process-inner,.pricing-inner,.faq-inner,.final-cta-inner,.footer-inner,.founders-inner,.truck-bar-inner{padding-left:24px;padding-right:24px}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGO REUSABLE SVG (defined once, referenced) ============ -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <!-- Carrier Base logo: Forward Arrow / Convoy Chevrons -->
+    <!-- Three chevrons stepping forward: two blue (trailing) and one white (lead) -->
+    <symbol id="cb-logo" viewBox="0 0 48 48">
+      <rect x="2" y="2" width="44" height="44" rx="11" fill="#0b1730"/>
+      <path d="M12 14 L22 24 L12 34" stroke="#3b82f6" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M22 14 L32 24 L22 34" stroke="#3b82f6" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>
+      <path d="M32 14 L42 24 L32 34" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    
+    <!-- Light version for dark backgrounds -->
+    <symbol id="cb-logo-light" viewBox="0 0 48 48">
+      <rect x="2" y="2" width="44" height="44" rx="11" fill="none" stroke="#3b82f6" stroke-width="1.5"/>
+      <path d="M12 14 L22 24 L12 34" stroke="#3b82f6" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M22 14 L32 24 L22 34" stroke="#3b82f6" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>
+      <path d="M32 14 L42 24 L32 34" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ============ NAV ============ -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#top" class="brand">
+      <svg class="logo-mark" width="36" height="36"><use href="#cb-logo"/></svg>
+      <div><div>Carrier Base</div><div class="brand-sub">Insurance Platform</div></div>
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#process">How it Works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a href="trucking-insurance-crm.html" class="btn btn-ghost">Sign In</a>
+      <button class="btn btn-primary" onclick="openModal('demo')">Book Demo <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">
+      <div class="dot"></div>
+      <span>Built by Trucking Insurance People</span>
+    </div>
+    <h1>The operating system for <em>trucking insurance</em> agencies.</h1>
+    <p class="hero-lede">A CRM, pre-underwriting engine, trucking application generator, MVR platform, and email system. Built specifically for commercial trucking insurance.</p>
+    <div class="hero-ctas">
+      <button class="btn btn-primary" onclick="openModal('demo')">Book a Demo <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+      <button class="btn btn-light" onclick="document.getElementById('features').scrollIntoView()">See Features</button>
+    </div>
+    
+    <!-- Hero stats (tighter, smaller) -->
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num"><em>Live</em> SAFER</div><div class="lbl">FMCSA Data</div></div>
+      <div class="hero-stat"><div class="num"><em>Auto</em>-fill</div><div class="lbl">Trucking Application</div></div>
+      <div class="hero-stat"><div class="num"><em>Instant</em> MVRs</div><div class="lbl">Driver Records</div></div>
+      <div class="hero-stat"><div class="num"><em>Smart</em> Match</div><div class="lbl">Market Appetite</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRUCK VISUAL BAR ============ -->
+<div class="truck-bar">
+  <div class="truck-bar-inner">
+    <div class="truck-bar-text">
+      <span class="mono">— For the road warriors</span>
+      <h3>Every <em>DOT number</em> tells a story.</h3>
+    </div>
+    
+    <!-- CUSTOM SVG: Stylized Semi-Truck (outline, blue monochrome) -->
+    <svg class="truck-bar-svg" width="420" height="140" viewBox="0 0 420 140" xmlns="http://www.w3.org/2000/svg">
+      <!-- Road line -->
+      <line x1="0" y1="130" x2="420" y2="130" stroke="#3b82f6" stroke-width="1" stroke-dasharray="8 6" opacity="0.4"/>
+      
+      <!-- Trailer -->
+      <g stroke="#3b82f6" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round">
+        <!-- Trailer body -->
+        <rect x="20" y="40" width="220" height="70" rx="3"/>
+        <!-- Trailer panels -->
+        <line x1="60" y1="40" x2="60" y2="110"/>
+        <line x1="100" y1="40" x2="100" y2="110"/>
+        <line x1="140" y1="40" x2="140" y2="110"/>
+        <line x1="180" y1="40" x2="180" y2="110"/>
+        <line x1="220" y1="40" x2="220" y2="110"/>
+        <!-- Trailer bottom rail -->
+        <line x1="20" y1="105" x2="240" y2="105"/>
+        
+        <!-- Connection to cab -->
+        <line x1="240" y1="60" x2="258" y2="60"/>
+        <line x1="240" y1="90" x2="258" y2="90"/>
+        
+        <!-- Cab body -->
+        <path d="M258 55 L258 110 L338 110 L338 85 L378 85 L378 55 Z"/>
+        <!-- Cab windshield -->
+        <path d="M338 55 L338 80 L376 80 L370 55 Z" fill="#2563eb" fill-opacity="0.15"/>
+        <!-- Hood -->
+        <line x1="338" y1="85" x2="338" y2="110"/>
+        <!-- Grille -->
+        <line x1="378" y1="65" x2="378" y2="105"/>
+        <line x1="383" y1="75" x2="383" y2="95"/>
+        <!-- Door -->
+        <line x1="320" y1="65" x2="320" y2="105"/>
+        <rect x="322" y="70" width="14" height="8" rx="1"/>
+      </g>
+      
+      <!-- Wheels -->
+      <g fill="#0b1730" stroke="#3b82f6" stroke-width="2">
+        <circle cx="55" cy="118" r="14"/>
+        <circle cx="95" cy="118" r="14"/>
+        <circle cx="200" cy="118" r="14"/>
+        <circle cx="278" cy="118" r="14"/>
+        <circle cx="358" cy="118" r="14"/>
+      </g>
+      <g fill="#3b82f6">
+        <circle cx="55" cy="118" r="5"/>
+        <circle cx="95" cy="118" r="5"/>
+        <circle cx="200" cy="118" r="5"/>
+        <circle cx="278" cy="118" r="5"/>
+        <circle cx="358" cy="118" r="5"/>
+      </g>
+      
+      <!-- Exhaust stacks -->
+      <g stroke="#3b82f6" stroke-width="2" fill="none" stroke-linecap="round">
+        <line x1="315" y1="30" x2="315" y2="55"/>
+        <line x1="322" y1="30" x2="322" y2="55"/>
+      </g>
+      
+      <!-- Motion lines behind trailer -->
+      <g stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" opacity="0.4">
+        <line x1="5" y1="60" x2="16" y2="60"/>
+        <line x1="2" y1="75" x2="14" y2="75"/>
+        <line x1="6" y1="90" x2="16" y2="90"/>
+      </g>
+    </svg>
+    
+    <div class="truck-bar-text right">
+      <span class="mono">— Carrier-first</span>
+      <h3>We speak <em>trucking</em>, fluently.</h3>
+    </div>
+  </div>
+</div>
+
+<!-- ============ FOUNDERS ============ -->
+<section class="founders">
+  <div class="founders-inner">
+    <div class="founders-grid">
+      <div>
+        <div class="founders-eyebrow"><div class="line"></div><span>Who built this</span></div>
+        <h2>People who <em>wrote the book</em>.</h2>
+        <p><strong>Carrier Base wasn't built in a conference room.</strong> It was built by trucking insurance agency owners and commercial underwriters who spent 15+ years running books before writing a single line of code.</p>
+        <p>We know what a Canal decline looks like. We know why Great West won't touch a new venture under two years. We know how to win.</p>
+        <div class="founder-badges">
+          <div class="founder-badge">
+            <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+            <h4>Agency Owners</h4>
+            <p>Built multi-million dollar trucking books from zero</p>
+          </div>
+          <div class="founder-badge">
+            <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
+            <h4>Underwriters</h4>
+            <p>Wrote appetite guides for carriers you submit to</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Founder quote panel with geometric background -->
+      <div class="founders-visual">
+        <div class="fv-content">
+          <div class="fv-quote">I spent fifteen years copying DOT numbers into spreadsheets at midnight. So I built the tool I wished I'd had in 2011.</div>
+        </div>
+        <div class="fv-attr">
+          <div class="fv-avatar">M</div>
+          <div>
+            <strong>Marcus, Co-Founder</strong>
+            <span>Former Agency Owner</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section class="features" id="features">
+  <div class="features-inner">
+    <div class="features-head">
+      <span class="mono">— Features</span>
+      <h2>Everything you need. <em>Nothing you don't.</em></h2>
+    </div>
+    <div class="features-grid">
+
+      <div class="feature-card fc-large dark">
+        <span class="fc-label">FMCSA Integration</span>
+        <h3 class="fc-title">Live SAFER, <em>one click</em>.</h3>
+        <p class="fc-desc">Pull BASICs, MCS-150, insurance history, inspections, and crashes the moment you open an account.</p>
+        <div class="fc-screenshot ss">
+          <div class="ss-hdr">
+            <div class="ss-dot" style="background:#ef4444"></div>
+            <div class="ss-dot" style="background:#f59e0b"></div>
+            <div class="ss-dot" style="background:#22c55e"></div>
+            <div style="margin-left:12px;font-size:10px;color:#64748b">Hill Country Freight — DOT# 3456789</div>
+          </div>
+          <div class="ss-body">
+            <div style="font-size:9px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px">FMCSA BASICs (24 months)</div>
+            <div class="ss-bar-wrap"><div class="lbl">Unsafe Drv</div><div class="bar"><div class="bar-fill" style="width:42%;background:#22c55e"></div></div><div class="val">42</div></div>
+            <div class="ss-bar-wrap"><div class="lbl">Hours of Svc</div><div class="bar"><div class="bar-fill" style="width:55%;background:#f59e0b"></div></div><div class="val">55</div></div>
+            <div class="ss-bar-wrap"><div class="lbl">Veh Maint</div><div class="bar"><div class="bar-fill" style="width:48%;background:#22c55e"></div></div><div class="val">48</div></div>
+            <div class="ss-bar-wrap"><div class="lbl">Crash Ind</div><div class="bar"><div class="bar-fill" style="width:35%;background:#22c55e"></div></div><div class="val">35</div></div>
+            <div style="display:flex;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid #e2e8f0;font-size:10px;color:#64748b">
+              <div>Safety: <b style="color:#16a34a">Satisfactory</b></div>
+              <div>Inspections: <b style="color:#0b1730">28</b></div>
+              <div>Crashes: <b style="color:#d97706">1</b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-card fc-medium">
+        <span class="fc-label">Market Matching</span>
+        <h3 class="fc-title">Pre-underwriting <em>that thinks</em>.</h3>
+        <p class="fc-desc">Every account scored against every market. Eligible carriers surfaced instantly.</p>
+        <div class="fc-screenshot ss">
+          <div class="ss-hdr"><div style="font-size:10px;color:#64748b">Pre-Underwrite Results</div></div>
+          <div class="ss-body">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 11px;background:#dcfce7;border-radius:9px;margin-bottom:5px"><div><div class="ss-name">Canal Insurance</div><div class="ss-sub">Auto Liab · Physical Damage</div></div><div style="font-size:22px;color:#16a34a;line-height:1;font-weight:600">94</div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 11px;background:#dcfce7;border-radius:9px;margin-bottom:5px"><div><div class="ss-name">Sentry Insurance</div><div class="ss-sub">Workers Comp · GL</div></div><div style="font-size:22px;color:#16a34a;line-height:1;font-weight:600">91</div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 11px;background:#fef3c7;border-radius:9px;margin-bottom:5px"><div><div class="ss-name">Great West Casualty</div><div class="ss-sub">Motor Truck Cargo</div></div><div style="font-size:22px;color:#d97706;line-height:1;font-weight:600">85</div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 11px;background:#fee2e2;border-radius:9px"><div><div class="ss-name">Progressive Comm.</div><div class="ss-sub">Fleet too small</div></div><div style="font-size:22px;color:#dc2626;line-height:1;font-weight:600">47</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-card fc-third blue">
+        <span class="fc-label">MVR Reports</span>
+        <h3 class="fc-title">Driver MVRs, <em>instant</em>.</h3>
+        <p class="fc-desc">Order motor vehicle records for every driver directly from the account.</p>
+        <div class="fc-screenshot" style="background:#fff;padding:14px 16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:14px;color:#0b1730;font-weight:600">Driver MVRs</div><span style="font-size:9px;font-weight:600;background:#dcfce7;color:#16a34a;padding:3px 8px;border-radius:100px">3 CLEAN</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f1f5f9"><div><div style="font-size:11px;font-weight:600;color:#0b1730">Mike Ramirez</div><div style="font-size:9px;color:#64748b">CDL-A · TX</div></div><span style="font-size:9px;color:#16a34a;font-weight:600">Clean</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f1f5f9"><div><div style="font-size:11px;font-weight:600;color:#0b1730">J. Martinez</div><div style="font-size:9px;color:#64748b">CDL-A · TX</div></div><span style="font-size:9px;color:#16a34a;font-weight:600">Clean</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0"><div><div style="font-size:11px;font-weight:600;color:#0b1730">R. Thompson</div><div style="font-size:9px;color:#64748b">CDL-A · OK</div></div><span style="font-size:9px;color:#d97706;font-weight:600">1 Minor</span></div>
+        </div>
+      </div>
+
+      <div class="feature-card fc-third">
+        <span class="fc-label">Trucking Application</span>
+        <h3 class="fc-title">Apps fill <em>themselves</em>.</h3>
+        <p class="fc-desc">Trucking-specific application auto-populated from every lead's SAFER data.</p>
+        <div class="fc-screenshot" style="background:#fff;padding:14px 16px">
+          <div style="font-size:15px;color:#0b1730;margin-bottom:2px;font-weight:600">Trucking Application</div>
+          <div style="font-size:10px;color:#64748b;margin-bottom:12px">Commercial Trucking · Pre-filled</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <div style="background:#eff6ff;padding:8px 10px;border-radius:6px"><div style="font-size:8px;color:#64748b;text-transform:uppercase;letter-spacing:0.04em">DOT #</div><div style="font-size:11px;font-weight:600;color:#0b1730">3456789</div></div>
+            <div style="background:#eff6ff;padding:8px 10px;border-radius:6px"><div style="font-size:8px;color:#64748b;text-transform:uppercase;letter-spacing:0.04em">MC #</div><div style="font-size:11px;font-weight:600;color:#0b1730">MC-987654</div></div>
+            <div style="background:#eff6ff;padding:8px 10px;border-radius:6px"><div style="font-size:8px;color:#64748b;text-transform:uppercase;letter-spacing:0.04em">Fleet</div><div style="font-size:11px;font-weight:600;color:#0b1730">12 units</div></div>
+            <div style="background:#eff6ff;padding:8px 10px;border-radius:6px"><div style="font-size:8px;color:#64748b;text-transform:uppercase;letter-spacing:0.04em">Years</div><div style="font-size:11px;font-weight:600;color:#0b1730">4</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-card fc-third dark">
+        <span class="fc-label">Team Performance</span>
+        <h3 class="fc-title">Producer <em>leaderboard</em>.</h3>
+        <p class="fc-desc">Live team metrics. Goals, binds, revenue.</p>
+        <div class="fc-screenshot" style="background:#152544;border-color:rgba(255,255,255,0.08);padding:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:11px;color:#fff"><div style="display:flex;align-items:center;gap:10px"><span style="color:#fde047;font-size:17px;font-weight:600">1</span><span>Alex Rivera</span></div><span style="color:#3b82f6;font-weight:600">$287K</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:11px;color:#fff"><div style="display:flex;align-items:center;gap:10px"><span style="color:#d4d4d4;font-size:17px;font-weight:600">2</span><span>Sam Ortiz</span></div><span style="color:#3b82f6;font-weight:600">$234K</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:11px;color:#fff"><div style="display:flex;align-items:center;gap:10px"><span style="color:#b8823a;font-size:17px;font-weight:600">3</span><span>Jordan Wells</span></div><span style="color:#3b82f6;font-weight:600">$198K</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROCESS ============ -->
+<section class="process" id="process">
+  <div class="process-inner">
+    <div class="process-head">
+      <span class="mono">— How it Works</span>
+      <h2>DOT number to bound in <em>under 30 minutes</em>.</h2>
+    </div>
+    <div class="process-steps">
+      <div class="process-step"><div class="process-num">STEP 01</div><h3>Find</h3><p>Paste a DOT number. Public FMCSA data loads instantly.</p></div>
+      <div class="process-step"><div class="process-num">STEP 02</div><h3>Score</h3><p>Auto pre-UW runs against every market in your appetite list.</p></div>
+      <div class="process-step"><div class="process-num">STEP 03</div><h3>Submit</h3><p>Applications auto-fill, MVRs pulled, PDFs generated, emails sent.</p></div>
+      <div class="process-step"><div class="process-num">STEP 04</div><h3>Bind</h3><p>Track every quote. Move accounts through the pipeline.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section class="pricing" id="pricing">
+  <div class="pricing-inner">
+    <div class="pricing-head">
+      <span class="mono">— Pricing</span>
+      <h2>Simple. <em>Honest.</em></h2>
+      <p>No setup fees. No long contracts. 14-day free trial.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-name">Solo</div>
+        <div class="price-sub">For independent producers</div>
+        <div class="price-amt"><span class="cur">$</span>89<span class="per">/mo</span></div>
+        <ul class="price-features">
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Up to 100 active accounts</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited DOT/SAFER lookups</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Trucking application + custom apps</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>MVR reports (50/mo)</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Pre-underwriting engine</li>
+        </ul>
+        <button class="btn btn-light price-cta" onclick="goToCheckout('solo')">Start Free Trial</button>
+      </div>
+      <div class="price-card featured">
+        <div class="price-badge">Most Popular</div>
+        <div class="price-name">Agency</div>
+        <div class="price-sub" style="color:rgba(255,255,255,0.6)">For growing teams</div>
+        <div class="price-amt"><span class="cur">$</span>249<span class="per">/mo</span></div>
+        <ul class="price-features">
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Up to 5 producers</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited accounts</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>MVR reports (250/mo)</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Leaderboard & goals</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Manager dashboard</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Outlook integration</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Priority support</li>
+        </ul>
+        <button class="btn btn-primary price-cta" onclick="goToCheckout('agency')">Start Free Trial</button>
+      </div>
+      <div class="price-card">
+        <div class="price-name">Enterprise</div>
+        <div class="price-sub">For larger agencies</div>
+        <div class="price-amt" style="font-size:36px;padding-top:16px">Custom</div>
+        <ul class="price-features">
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited producers</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited MVRs</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Single sign-on (SSO)</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Custom integrations & API</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Dedicated success mgr</li>
+        </ul>
+        <button class="btn btn-light price-cta" onclick="openModal('contact')">Contact Sales</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="faq" id="faq">
+  <div class="faq-inner">
+    <div class="faq-head">
+      <span class="mono">— FAQ</span>
+      <h2>Good <em>questions</em>.</h2>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">How is this different from Salesforce or HubSpot?</div><div class="faq-a">Generic CRMs are built for anyone selling anything. Carrier Base is built for one thing: commercial trucking insurance. Native FMCSA integration, trucking application auto-fill, MVR reports, market appetite scoring, BASIC alerts — all shaped by real producers and underwriters.</div></div>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Who actually built this?</div><div class="faq-a">Our team includes former trucking insurance agency owners and commercial underwriters who wrote appetite guidelines for carriers you submit to. We know the business because we lived it.</div></div>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Can I run MVRs from inside the platform?</div><div class="faq-a">Yes. Order motor vehicle records for any driver directly from the account view. Results return in-platform and attach automatically to the driver record.</div></div>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Is the FMCSA data really live?</div><div class="faq-a">Yes. We integrate with the FMCSA SAFER and Census Files API to pull BASICs, MCS-150 data, insurance history, inspections, and crashes in real time.</div></div>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Can I bring my own market appetite list?</div><div class="faq-a">Absolutely. Ships with pre-loaded profiles for major carriers, but you can edit, delete, or build your own from scratch.</div></div>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Is my data secure?</div><div class="faq-a">AES-256 at rest, TLS 1.3 in transit, SOC 2 Type II compliant, hosted on AWS US-East. Daily backups retained 30 days.</div></div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section class="final-cta">
+  <div class="final-cta-inner">
+    <h2>Built to <em>win</em>.</h2>
+    <p>Book a 30-minute demo. See it in action. No credit card required.</p>
+    <div class="final-cta-ctas">
+      <button class="btn btn-primary" onclick="openModal('demo')">Book a Demo <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+      <button class="btn btn-light" onclick="openModal('contact')">Contact Sales</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#top" class="brand">
+          <svg class="logo-mark" width="36" height="36"><use href="#cb-logo-light"/></svg>
+          <div><div>Carrier Base</div><div class="brand-sub">Insurance Platform</div></div>
+        </a>
+        <p>The operating system for trucking insurance agencies. Built in New Braunfels, TX.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Product</h5>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#process">How it Works</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#" onclick="openModal('demo');return false">Book Demo</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="#" onclick="openModal('contact');return false">Contact</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Blog</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Legal</h5>
+        <ul>
+          <li><a href="#" onclick="openModal('terms');return false">Terms</a></li>
+          <li><a href="#" onclick="openModal('privacy');return false">Privacy</a></li>
+          <li><a href="#">Security</a></li>
+          <li><a href="#">DPA</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Carrier Base, Inc.</p>
+      <div class="footer-legal">
+        <a href="#" onclick="openModal('terms');return false">Terms</a>
+        <a href="#" onclick="openModal('privacy');return false">Privacy</a>
+        <a href="#">Cookies</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box" id="modalBox"></div>
+</div>
+
+<script>
+const MODALS={
+  demo:{title:'Book a Demo',sub:'See Carrier Base in action.',body:'<form onsubmit="event.preventDefault();submitForm()"><div class="form-row"><label>Full Name</label><input required placeholder="Jane Smith"></div><div class="form-row"><label>Work Email</label><input type="email" required placeholder="jane@youragency.com"></div><div class="form-row"><label>Agency Name</label><input required placeholder="Smith Insurance Group"></div><div class="form-row"><label>Number of Producers</label><select><option>Just me</option><option>2–5</option><option>6–15</option><option>16–50</option><option>50+</option></select></div><button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px">Schedule Demo</button></form>'},
+  contact:{title:'Get in Touch',sub:'We\'ll respond within 4 business hours.',body:'<form onsubmit="event.preventDefault();submitForm()"><div class="form-row"><label>Name</label><input required></div><div class="form-row"><label>Email</label><input type="email" required></div><div class="form-row"><label>Message</label><textarea required style="min-height:120px"></textarea></div><button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px">Send Message</button></form>'},
+  signin:{title:'Sign In',sub:'Welcome back.',body:'<div id="signinError" style="display:none;padding:10px 14px;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;color:#dc2626;font-size:12px;margin-bottom:14px"></div><form onsubmit="event.preventDefault();doHomepageSignin()"><div class="form-row"><label>Email</label><input type="email" id="signinEmail" required placeholder="you@youragency.com"></div><div class="form-row"><label>Password</label><input type="password" id="signinPassword" required></div><button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px">Sign In</button><div style="margin-top:16px;padding-top:14px;border-top:1px solid #f1f5f9"><div style="font-size:10px;color:#94a3b8;margin-bottom:8px;text-align:center;text-transform:uppercase;letter-spacing:0.06em">Demo Accounts</div><div style="font-size:11px;color:#64748b;line-height:1.6"><div style="cursor:pointer;padding:4px;border-radius:4px" onclick="document.getElementById(\'signinEmail\').value=\'admin@carrierbase.com\';document.getElementById(\'signinPassword\').value=\'CarrierBase2026!\'"><b style="color:#dc2626">Super Admin:</b> admin@carrierbase.com</div><div style="cursor:pointer;padding:4px;border-radius:4px" onclick="document.getElementById(\'signinEmail\').value=\'manager@demo.com\';document.getElementById(\'signinPassword\').value=\'demo1234\'"><b style="color:#2563eb">Manager:</b> manager@demo.com</div><div style="cursor:pointer;padding:4px;border-radius:4px" onclick="document.getElementById(\'signinEmail\').value=\'alex@demo.com\';document.getElementById(\'signinPassword\').value=\'demo1234\'"><b style="color:#16a34a">Producer:</b> alex@demo.com</div></div></div><div style="text-align:center;margin-top:14px;font-size:13px;color:#64748b">No account? <a href="#" onclick="openModal(\'demo\');return false" style="color:#2563eb;font-weight:600">Book a demo</a></div></form>'},
+  terms:{title:'Terms of Service',sub:'Last updated: April 12, 2026',body:'<div style="font-size:14px;color:#64748b;line-height:1.7;max-height:50vh;overflow-y:auto;padding-right:10px"><p style="margin-bottom:14px"><strong style="color:#0b1730">1. Acceptance.</strong> By using Carrier Base you agree to these terms.</p><p style="margin-bottom:14px"><strong style="color:#0b1730">2. Service.</strong> SaaS platform for commercial trucking insurance agencies.</p><p style="margin-bottom:14px"><strong style="color:#0b1730">3. Accounts.</strong> Provide accurate info and keep credentials confidential.</p><p style="margin-bottom:14px"><strong style="color:#0b1730">4. Billing.</strong> Monthly or annual. Cancel anytime. 14-day refund window.</p><p style="margin-bottom:14px"><strong style="color:#0b1730">5. Data.</strong> Your data belongs to you.</p><p><strong style="color:#0b1730">Contact:</strong> legal@carrierbase.com</p></div>'},
+  privacy:{title:'Privacy Policy',sub:'Last updated: April 12, 2026',body:'<div style="font-size:14px;color:#64748b;line-height:1.7;max-height:50vh;overflow-y:auto;padding-right:10px"><p style="margin-bottom:14px"><strong style="color:#0b1730">Commitment.</strong> We protect your privacy and never sell your data.</p><p style="margin-bottom:14px"><strong style="color:#0b1730">What We Collect.</strong> Account info, usage data, and content you create.</p><p style="margin-bottom:14px"><strong style="color:#0b1730">Security.</strong> AES-256 at rest, TLS 1.3 in transit, SOC 2 Type II.</p><p><strong style="color:#0b1730">Contact:</strong> privacy@carrierbase.com</p></div>'},
+  thanks:{title:'Thanks!',sub:'We got your message.',body:'<div style="text-align:center;padding:16px 0"><div style="width:64px;height:64px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><p style="color:#64748b;font-size:14px;line-height:1.6">A member of our team will reach out within 4 business hours.</p><button class="btn btn-primary" style="margin-top:24px" onclick="closeModal()">Close</button></div>'}
+};
+
+function openModal(key){
+  const m=MODALS[key];if(!m)return;
+  document.getElementById('modalBox').innerHTML='<button class="modal-close" onclick="closeModal()">&times;</button><h3>'+m.title+'</h3><p class="sub">'+m.sub+'</p>'+m.body;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function submitForm(){openModal('thanks');}
+function goToCheckout(plan){window.location.href='carrier-base-checkout.html?plan='+plan;}
+
+// ============================================================================
+// HOMEPAGE SIGN-IN — validates credentials and sets session before redirecting
+// Uses the same localStorage keys as the CRM auth system
+// ============================================================================
+const HOMEPAGE_AUTH_KEY='carrierBase_currentUser_v1';
+const HOMEPAGE_USERS_KEY='carrierBase_users_v1';
+const HOMEPAGE_EVENTS_KEY='carrierBase_events_v1';
+
+// Hardcoded super admin (must match CRM's SUPER_ADMIN object)
+const HOMEPAGE_SUPER_ADMIN={
+  email:'admin@carrierbase.com',
+  password:'CarrierBase2026!',
+  fullName:'Super Admin',
+  firstName:'Super',
+  lastName:'Admin',
+  role:'super_admin',
+  agencyName:'Carrier Base HQ',
+  id:'super_admin_001'
+};
+
+// Seed demo users if none exist (so first-time visitors can log in with demo accounts)
+function homepageSeedUsers(){
+  let users=[];
+  try{users=JSON.parse(localStorage.getItem(HOMEPAGE_USERS_KEY)||'[]');}catch(e){}
+  if(users.length===0){
+    users=[
+      {id:'u_demo_mgr',email:'manager@demo.com',password:'demo1234',firstName:'Marcus',lastName:'Hill',fullName:'Marcus Hill',role:'managing_producer',agencyName:'Hill Country Insurance',phone:'(830) 555-0100',plan:'agency',subscriptionStatus:'active',createdAt:'2026-01-15T10:00:00Z',lastLogin:null,loginCount:0,usage:{accountsCreated:12,applicationsCompleted:8,mvrsRun:34,emailsSent:142}},
+      {id:'u_demo_alex',email:'alex@demo.com',password:'demo1234',firstName:'Alex',lastName:'Rivera',fullName:'Alex Rivera',role:'producer',agencyName:'Hill Country Insurance',phone:'(830) 555-0101',plan:'agency',supervisor:'Marcus Hill',subscriptionStatus:'active',createdAt:'2026-01-20T10:00:00Z',lastLogin:null,loginCount:0,usage:{accountsCreated:8,applicationsCompleted:5,mvrsRun:22,emailsSent:88}},
+      {id:'u_demo_jordan',email:'jordan@demo.com',password:'demo1234',firstName:'Jordan',lastName:'Wells',fullName:'Jordan Wells',role:'producer',agencyName:'Hill Country Insurance',phone:'(830) 555-0102',plan:'agency',supervisor:'Marcus Hill',subscriptionStatus:'active',createdAt:'2026-02-01T10:00:00Z',lastLogin:null,loginCount:0,usage:{accountsCreated:6,applicationsCompleted:4,mvrsRun:15,emailsSent:62}}
+    ];
+    localStorage.setItem(HOMEPAGE_USERS_KEY,JSON.stringify(users));
+  }
+}
+
+function doHomepageSignin(){
+  const emailEl=document.getElementById('signinEmail');
+  const passEl=document.getElementById('signinPassword');
+  const errEl=document.getElementById('signinError');
+  if(!emailEl||!passEl)return;
+  const email=emailEl.value.trim();
+  const password=passEl.value;
+  if(!email||!password){
+    if(errEl){errEl.style.display='block';errEl.textContent='Please enter email and password.';}
+    return;
+  }
+  // Make sure demo users exist (first-time visitor safety)
+  homepageSeedUsers();
+  // Check super admin first
+  if(email.toLowerCase()===HOMEPAGE_SUPER_ADMIN.email.toLowerCase()&&password===HOMEPAGE_SUPER_ADMIN.password){
+    localStorage.setItem(HOMEPAGE_AUTH_KEY,JSON.stringify(HOMEPAGE_SUPER_ADMIN));
+    try{
+      const events=JSON.parse(localStorage.getItem(HOMEPAGE_EVENTS_KEY)||'[]');
+      events.push({id:'evt'+Date.now(),type:'login',timestamp:new Date().toISOString(),userId:HOMEPAGE_SUPER_ADMIN.id,email:HOMEPAGE_SUPER_ADMIN.email,role:'super_admin',source:'homepage'});
+      localStorage.setItem(HOMEPAGE_EVENTS_KEY,JSON.stringify(events));
+    }catch(e){}
+    window.location.href='trucking-insurance-crm.html';
+    return;
+  }
+  // Check database
+  let users=[];
+  try{users=JSON.parse(localStorage.getItem(HOMEPAGE_USERS_KEY)||'[]');}catch(e){}
+  const user=users.find(u=>u.email.toLowerCase()===email.toLowerCase()&&u.password===password);
+  if(!user){
+    if(errEl){errEl.style.display='block';errEl.textContent='Invalid email or password.';}
+    return;
+  }
+  if(user.subscriptionStatus==='cancelled'||user.subscriptionStatus==='expired'){
+    if(errEl){errEl.style.display='block';errEl.textContent='Your subscription is inactive. Please contact support.';}
+    return;
+  }
+  // Update last login and save
+  user.lastLogin=new Date().toISOString();
+  user.loginCount=(user.loginCount||0)+1;
+  const idx=users.findIndex(u=>u.id===user.id);
+  users[idx]=user;
+  localStorage.setItem(HOMEPAGE_USERS_KEY,JSON.stringify(users));
+  localStorage.setItem(HOMEPAGE_AUTH_KEY,JSON.stringify(user));
+  try{
+    const events=JSON.parse(localStorage.getItem(HOMEPAGE_EVENTS_KEY)||'[]');
+    events.push({id:'evt'+Date.now(),type:'login',timestamp:new Date().toISOString(),userId:user.id,email:user.email,role:user.role,source:'homepage'});
+    localStorage.setItem(HOMEPAGE_EVENTS_KEY,JSON.stringify(events));
+  }catch(e){}
+  // Redirect to CRM - it will find the session and load directly into the dashboard
+  window.location.href='trucking-insurance-crm.html';
+}
+
+// Seed users on homepage load so demo credentials work immediately
+homepageSeedUsers();
+
+window.addEventListener('scroll',function(){
+  const nav=document.getElementById('nav');
+  if(window.scrollY>40)nav.classList.add('scrolled');
+  else nav.classList.remove('scrolled');
+});
+
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
+</script>
+</body>
+</html>

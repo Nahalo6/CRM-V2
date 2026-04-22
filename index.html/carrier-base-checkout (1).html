@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout — Carrier Base</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- Stripe.js (ready for production - requires publishable key) -->
+<script src="https://js.stripe.com/v3/"></script>
+<style>
+:root{
+  --navy:#1b2a4a;
+  --navy-dark:#0f1a33;
+  --blue:#2563eb;
+  --blue-light:#3b82f6;
+  --blue-pale:#eff6ff;
+  --white:#ffffff;
+  --off-white:#f8fafc;
+  --cream:#f1f5f9;
+  --ink:#0f172a;
+  --text:#1e293b;
+  --muted:#64748b;
+  --line:#e2e8f0;
+  --line-light:#f1f5f9;
+  --green:#16a34a;
+  --red:#dc2626;
+  --serif:'Instrument Serif',Georgia,serif;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--off-white);color:var(--ink);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
+a{color:inherit;text-decoration:none}
+button{font-family:var(--sans);cursor:pointer;border:none;background:none}
+.mono{font-family:var(--mono);font-size:11px;letter-spacing:0.04em;text-transform:uppercase;font-weight:500}
+
+/* LAYOUT */
+.checkout-wrap{display:grid;grid-template-columns:1.2fr 1fr;min-height:100vh}
+.checkout-form{background:var(--white);padding:60px;overflow-y:auto}
+.checkout-summary{background:var(--navy);color:var(--white);padding:60px;position:relative;overflow:hidden}
+.checkout-summary::before{content:'';position:absolute;top:-30%;right:-30%;width:80%;height:160%;background:radial-gradient(ellipse at center,rgba(59,130,246,0.2) 0%,transparent 60%);pointer-events:none}
+.checkout-summary-inner{position:relative;max-width:440px}
+
+/* FORM SIDE */
+.cf-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:48px}
+.cf-logo{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-size:24px;color:var(--navy);letter-spacing:-0.02em}
+.cf-back{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;transition:color .2s}
+.cf-back:hover{color:var(--ink)}
+.cf-title{font-family:var(--serif);font-size:44px;letter-spacing:-0.025em;color:var(--ink);margin-bottom:8px;font-weight:400}
+.cf-title em{font-style:italic;color:var(--blue)}
+.cf-sub{font-size:15px;color:var(--muted);margin-bottom:40px}
+.cf-section{margin-bottom:36px}
+.cf-section-hdr{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.cf-step-num{width:24px;height:24px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.cf-section-hdr h3{font-family:var(--serif);font-size:20px;color:var(--ink);letter-spacing:-0.01em;font-weight:400}
+.cf-row{margin-bottom:14px}
+.cf-row-grid{display:grid;gap:10px}
+.cf-row-grid-2{grid-template-columns:1fr 1fr}
+.cf-row-grid-3{grid-template-columns:2fr 1fr 1fr}
+.cf-row label{display:block;font-family:var(--mono);font-size:10px;color:var(--ink);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:5px;font-weight:500}
+.cf-row input,.cf-row select{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;font-size:14px;font-family:var(--sans);background:var(--white);outline:none;transition:all .2s;color:var(--ink)}
+.cf-row input:focus,.cf-row select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
+.cf-row .hint{font-size:11px;color:var(--muted);margin-top:4px}
+.card-brand-row{position:relative}
+.card-brand-icons{position:absolute;right:14px;top:50%;transform:translateY(-50%);display:flex;gap:6px}
+.card-brand-icons svg{width:32px;height:20px}
+
+/* Trust bar */
+.cf-trust{display:flex;align-items:center;gap:18px;padding:16px 20px;background:var(--blue-pale);border:1px solid #bfdbfe;border-radius:12px;margin-bottom:32px}
+.cf-trust svg{color:var(--blue);flex-shrink:0}
+.cf-trust-text{font-size:12px;color:var(--navy);line-height:1.5}
+.cf-trust-text strong{font-weight:600}
+
+/* Plan switcher */
+.cf-plan-switch{display:flex;gap:8px;margin-bottom:32px;background:var(--cream);padding:4px;border-radius:100px}
+.cf-plan-switch button{flex:1;padding:10px;font-size:12px;font-weight:500;border-radius:100px;color:var(--muted);transition:all .2s}
+.cf-plan-switch button.active{background:var(--white);color:var(--ink);box-shadow:0 1px 3px rgba(15,23,42,0.08)}
+
+/* Final CTA */
+.cf-submit{width:100%;background:var(--navy);color:#fff;padding:18px;border-radius:12px;font-size:15px;font-weight:600;margin-top:20px;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:10px}
+.cf-submit:hover{background:var(--blue)}
+.cf-submit svg{flex-shrink:0}
+.cf-submit.processing{background:var(--muted);cursor:wait}
+.cf-legal{font-size:11px;color:var(--muted);text-align:center;margin-top:16px;line-height:1.6}
+.cf-legal a{color:var(--blue);text-decoration:underline}
+
+/* SUMMARY SIDE */
+.cs-eyebrow{font-family:var(--mono);font-size:11px;color:var(--blue-light);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:16px}
+.cs-title{font-family:var(--serif);font-size:44px;letter-spacing:-0.025em;margin-bottom:8px;font-weight:400;line-height:1}
+.cs-sub{font-size:14px;color:rgba(255,255,255,0.6);margin-bottom:40px}
+.cs-plan-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:28px;margin-bottom:20px;backdrop-filter:blur(10px)}
+.cs-plan-name{font-family:var(--serif);font-size:28px;letter-spacing:-0.01em;margin-bottom:4px;font-weight:400}
+.cs-plan-desc{font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:20px}
+.cs-plan-price{font-family:var(--serif);font-size:56px;letter-spacing:-0.03em;font-weight:400;line-height:0.9;margin-bottom:24px}
+.cs-plan-price .cur{font-size:24px;vertical-align:super;opacity:0.5}
+.cs-plan-price .per{font-size:14px;opacity:0.5;font-family:var(--sans);margin-left:4px}
+.cs-features{list-style:none;border-top:1px solid rgba(255,255,255,0.1);padding-top:20px}
+.cs-features li{display:flex;gap:10px;align-items:flex-start;font-size:13px;margin-bottom:10px;color:rgba(255,255,255,0.75)}
+.cs-features svg{flex-shrink:0;color:var(--blue-light);margin-top:2px}
+
+/* Order totals */
+.cs-totals{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;margin-bottom:24px}
+.cs-total-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:13px;color:rgba(255,255,255,0.7)}
+.cs-total-row.grand{padding-top:14px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.1);font-size:15px;color:#fff;font-weight:500}
+.cs-total-row.grand .amount{font-family:var(--serif);font-size:28px;letter-spacing:-0.01em;font-weight:400}
+
+/* Trial badge */
+.cs-trial{background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);border-radius:12px;padding:16px 18px;display:flex;gap:12px;align-items:flex-start}
+.cs-trial svg{color:var(--blue-light);flex-shrink:0;margin-top:2px}
+.cs-trial-text{font-size:12px;color:rgba(255,255,255,0.85);line-height:1.5}
+.cs-trial-text strong{color:#fff;font-weight:500}
+
+/* Logos */
+.cs-secure-logos{margin-top:40px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;opacity:0.5}
+.cs-secure-logos div{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.6);letter-spacing:0.04em;padding:6px 12px;border:1px solid rgba(255,255,255,0.15);border-radius:100px}
+
+/* Success overlay */
+.success-overlay{position:fixed;inset:0;background:rgba(15,26,51,0.96);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;z-index:1000}
+.success-overlay.open{display:flex}
+.success-box{background:#fff;border-radius:24px;padding:60px 48px;max-width:480px;text-align:center}
+.success-icon{width:80px;height:80px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 28px}
+.success-box h2{font-family:var(--serif);font-size:40px;letter-spacing:-0.02em;color:var(--ink);margin-bottom:12px;font-weight:400}
+.success-box p{font-size:15px;color:var(--muted);margin-bottom:28px;line-height:1.6}
+.success-box .creds{background:var(--off-white);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin-bottom:28px;text-align:left}
+.success-box .creds-label{font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:4px;letter-spacing:0.04em;text-transform:uppercase}
+.success-box .creds-value{font-family:var(--mono);font-size:13px;color:var(--ink);font-weight:500}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .checkout-wrap{grid-template-columns:1fr}
+  .checkout-form,.checkout-summary{padding:40px 24px}
+  .cs-plan-card{padding:22px}
+}
+</style>
+</head>
+<body>
+
+<div class="checkout-wrap">
+
+  <!-- FORM SIDE -->
+  <div class="checkout-form">
+    <div class="cf-header">
+      <a href="carrier-base-homepage.html" class="cf-logo">
+        <svg width="32" height="32" viewBox="0 0 48 48"><rect x="2" y="2" width="44" height="44" rx="11" fill="#0b1730"/><path d="M12 14 L22 24 L12 34" stroke="#3b82f6" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 14 L32 24 L22 34" stroke="#3b82f6" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/><path d="M32 14 L42 24 L32 34" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Carrier Base
+      </a>
+      <a href="carrier-base-homepage.html" class="cf-back"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Back to home</a>
+    </div>
+
+    <h1 class="cf-title">Start your <em>free trial</em>.</h1>
+    <p class="cf-sub">14 days free, no credit card charged until the trial ends. Cancel anytime.</p>
+
+    <!-- Plan switcher -->
+    <div class="cf-plan-switch">
+      <button id="plan-solo" onclick="selectPlan('solo')">Solo · $89</button>
+      <button id="plan-agency" class="active" onclick="selectPlan('agency')">Agency · $249</button>
+      <button id="plan-enterprise" onclick="selectPlan('enterprise')">Enterprise</button>
+    </div>
+
+    <!-- Trust bar -->
+    <div class="cf-trust">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <div class="cf-trust-text"><strong>Secure checkout.</strong> Your payment info is encrypted end-to-end and processed by Stripe. Carrier Base never sees or stores your card number.</div>
+    </div>
+
+    <form id="checkoutForm" onsubmit="handleSubmit(event)">
+
+      <!-- SECTION 1: Account -->
+      <div class="cf-section">
+        <div class="cf-section-hdr"><div class="cf-step-num">1</div><h3>Your account</h3></div>
+        <div class="cf-row-grid cf-row-grid-2">
+          <div class="cf-row"><label>First Name *</label><input type="text" id="firstName" required></div>
+          <div class="cf-row"><label>Last Name *</label><input type="text" id="lastName" required></div>
+        </div>
+        <div class="cf-row"><label>Work Email *</label><input type="email" id="email" required placeholder="you@youragency.com"></div>
+        <div class="cf-row"><label>Create Password *</label><input type="password" id="password" required minlength="8"><div class="hint">At least 8 characters. You'll use this to sign in.</div></div>
+      </div>
+
+      <!-- SECTION 2: Agency Info -->
+      <div class="cf-section">
+        <div class="cf-section-hdr"><div class="cf-step-num">2</div><h3>Agency information</h3></div>
+        <div class="cf-row"><label>Agency Name *</label><input type="text" id="agencyName" required placeholder="Smith Insurance Group"></div>
+        <div class="cf-row-grid cf-row-grid-2">
+          <div class="cf-row"><label>Phone *</label><input type="tel" id="phone" required placeholder="(555) 555-5555"></div>
+          <div class="cf-row"><label>Producer Count</label><select id="producerCount"><option>Just me</option><option>2–5</option><option>6–15</option><option>16–50</option><option>50+</option></select></div>
+        </div>
+        <div class="cf-row"><label>Billing Address *</label><input type="text" id="address" required placeholder="Street address"></div>
+        <div class="cf-row-grid cf-row-grid-3">
+          <div class="cf-row"><label>City *</label><input type="text" id="city" required></div>
+          <div class="cf-row"><label>State *</label><input type="text" id="state" required maxlength="2" placeholder="TX"></div>
+          <div class="cf-row"><label>ZIP *</label><input type="text" id="zip" required placeholder="78130"></div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: Payment -->
+      <div class="cf-section">
+        <div class="cf-section-hdr"><div class="cf-step-num">3</div><h3>Payment details</h3></div>
+        <div class="cf-row"><label>Card Number *</label><div class="card-brand-row"><input type="text" id="cardNumber" placeholder="1234 1234 1234 1234" maxlength="19" oninput="formatCard(this)"><div class="card-brand-icons"><svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="20" rx="3" fill="#1a1f71"/><text x="16" y="14" text-anchor="middle" fill="#fff" font-family="Arial" font-size="8" font-weight="bold" font-style="italic">VISA</text></svg><svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="20" rx="3" fill="#fff" stroke="#e2e8f0"/><circle cx="13" cy="10" r="5" fill="#eb001b"/><circle cx="19" cy="10" r="5" fill="#f79e1b" fill-opacity="0.85"/></svg></div></div><div class="hint">Test card: 4242 4242 4242 4242 (Stripe test mode)</div></div>
+        <div class="cf-row-grid cf-row-grid-2">
+          <div class="cf-row"><label>Expiration *</label><input type="text" id="expiry" placeholder="MM / YY" maxlength="7" oninput="formatExpiry(this)"></div>
+          <div class="cf-row"><label>CVC *</label><input type="text" id="cvc" placeholder="123" maxlength="4"></div>
+        </div>
+        <div class="cf-row"><label>Name on Card *</label><input type="text" id="cardName" required placeholder="As shown on card"></div>
+      </div>
+
+      <button type="submit" id="submitBtn" class="cf-submit">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Start 14-Day Free Trial
+      </button>
+      <p class="cf-legal">By starting your trial, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. You will not be charged during your 14-day trial. Cancel anytime before the trial ends to avoid charges.</p>
+    </form>
+  </div>
+
+  <!-- SUMMARY SIDE -->
+  <div class="checkout-summary">
+    <div class="checkout-summary-inner">
+      <div class="cs-eyebrow">— Order summary</div>
+      <h2 class="cs-title">You're almost <em style="color:#60a5fa;font-style:italic">in</em>.</h2>
+      <p class="cs-sub">Review your plan details below.</p>
+
+      <div class="cs-plan-card" id="planCard">
+        <div class="cs-plan-name" id="planName">Agency</div>
+        <div class="cs-plan-desc" id="planDesc">For growing teams up to 5 producers</div>
+        <div class="cs-plan-price" id="planPrice"><span class="cur">$</span>249<span class="per">/mo</span></div>
+        <ul class="cs-features" id="planFeatures">
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Up to 5 producers</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited accounts</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>MVR reports (250/mo included)</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Producer leaderboard &amp; goals</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Manager dashboard</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Outlook integration</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Priority support</li>
+        </ul>
+      </div>
+
+      <div class="cs-totals">
+        <div class="cs-total-row"><span>Subtotal</span><span id="subtotal">$249.00</span></div>
+        <div class="cs-total-row"><span>14-day trial</span><span style="color:#86efac">−$249.00</span></div>
+        <div class="cs-total-row"><span>Sales tax</span><span>$0.00</span></div>
+        <div class="cs-total-row grand"><span>Due today</span><span class="amount">$0.00</span></div>
+      </div>
+
+      <div class="cs-trial">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <div class="cs-trial-text"><strong>14-day free trial.</strong> Your card is saved but not charged until <span id="trialEnd">April 27, 2026</span>. Cancel anytime from your account settings and you won't be billed.</div>
+      </div>
+
+      <div class="cs-secure-logos">
+        <div>STRIPE SECURE</div>
+        <div>SOC 2 TYPE II</div>
+        <div>AES-256</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-box">
+    <div class="success-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <h2>You're in!</h2>
+    <p>Your 14-day trial has started. Your account has been created and is ready to use.</p>
+    <div class="creds">
+      <div class="creds-label">Your sign-in email</div>
+      <div class="creds-value" id="successEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0e77617b4e77617b7c6f696b606d77206d6163">[email&#160;protected]</a></div>
+    </div>
+    <button class="cf-submit" onclick="window.location.href='trucking-insurance-crm.html'">Sign In to Carrier Base <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ============================================================================
+// STRIPE INTEGRATION - Ready for production with publishable key
+// ============================================================================
+// When going live, replace the empty string below with your Stripe publishable key
+// from https://dashboard.stripe.com/apikeys (e.g., "pk_live_51ABC...")
+//
+// For testing, use: "pk_test_51..." (test keys start with pk_test_)
+//
+// Example:
+//   const STRIPE_PUBLIC_KEY = "pk_test_51ABC123...";
+//   const stripe = Stripe(STRIPE_PUBLIC_KEY);
+//
+// Then on form submit, instead of the current simulation, call:
+//   const { token, error } = await stripe.createToken(cardElement);
+//   if (error) { /* show error */ }
+//   else { /* send token.id to your backend to create subscription */ }
+//
+// See: https://stripe.com/docs/js/tokens/create_token
+
+const STRIPE_PUBLIC_KEY = ""; // TODO: Add your Stripe publishable key here
+let stripe = null;
+if (STRIPE_PUBLIC_KEY && typeof Stripe !== 'undefined') {
+  stripe = Stripe(STRIPE_PUBLIC_KEY);
+}
+
+// Stripe Price IDs - create these in your Stripe Dashboard > Products
+const STRIPE_PRICE_IDS = {
+  solo: "price_solo_monthly_89",       // Replace with real Stripe price ID
+  agency: "price_agency_monthly_249",   // Replace with real Stripe price ID
+  enterprise: "price_enterprise_custom" // For Enterprise, redirect to contact
+};
+
+// ============================================================================
+// PLAN DATA
+// ============================================================================
+const PLANS = {
+  solo: {
+    name: "Solo",
+    desc: "For independent producers",
+    price: 89,
+    features: [
+      "Up to 100 active accounts",
+      "Unlimited DOT/SAFER lookups",
+      "All ACORD forms + custom apps",
+      "MVR reports (50/mo included)",
+      "Pre-underwriting engine",
+      "Email + documents"
+    ]
+  },
+  agency: {
+    name: "Agency",
+    desc: "For growing teams up to 5 producers",
+    price: 249,
+    features: [
+      "Up to 5 producers",
+      "Unlimited accounts",
+      "MVR reports (250/mo included)",
+      "Producer leaderboard & goals",
+      "Manager dashboard",
+      "Outlook integration",
+      "Priority support"
+    ]
+  },
+  enterprise: {
+    name: "Enterprise",
+    desc: "For larger agencies",
+    price: "Custom",
+    features: [
+      "Unlimited producers",
+      "Unlimited MVRs",
+      "Single sign-on (SSO)",
+      "Custom integrations & API",
+      "Dedicated success manager",
+      "White-glove onboarding"
+    ]
+  }
+};
+
+let currentPlan = "agency";
+
+// Parse URL params to pre-select plan
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const plan = params.get('plan');
+  if (plan && PLANS[plan]) {
+    currentPlan = plan;
+    selectPlan(plan);
+  }
+})();
+
+function selectPlan(plan) {
+  if (plan === 'enterprise') {
+    if (confirm('Enterprise plans are custom priced. Redirect to contact sales?')) {
+      window.location.href = 'carrier-base-homepage.html#pricing';
+    }
+    return;
+  }
+  currentPlan = plan;
+  document.querySelectorAll('.cf-plan-switch button').forEach(b => b.classList.remove('active'));
+  document.getElementById('plan-' + plan).classList.add('active');
+  
+  const p = PLANS[plan];
+  document.getElementById('planName').textContent = p.name;
+  document.getElementById('planDesc').textContent = p.desc;
+  document.getElementById('planPrice').innerHTML = '<span class="cur">$</span>' + p.price + '<span class="per">/mo</span>';
+  document.getElementById('planFeatures').innerHTML = p.features.map(f => 
+    '<li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' + f + '</li>'
+  ).join('');
+  document.getElementById('subtotal').textContent = '$' + p.price.toFixed(2);
+}
+
+// Format helpers
+function formatCard(input) {
+  let v = input.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+  let matches = v.match(/\d{4,16}/g);
+  let match = matches && matches[0] || '';
+  let parts = [];
+  for (let i = 0, len = match.length; i < len; i += 4) {
+    parts.push(match.substring(i, i + 4));
+  }
+  input.value = parts.length ? parts.join(' ') : v;
+}
+function formatExpiry(input) {
+  let v = input.value.replace(/\D/g, '');
+  if (v.length >= 2) {
+    v = v.substring(0, 2) + ' / ' + v.substring(2, 4);
+  }
+  input.value = v;
+}
+
+// Trial end date
+(function(){
+  const end = new Date();
+  end.setDate(end.getDate() + 14);
+  document.getElementById('trialEnd').textContent = end.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+})();
+
+// ============================================================================
+// FORM SUBMISSION
+// ============================================================================
+async function handleSubmit(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  btn.classList.add('processing');
+  btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" opacity="0.3"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg> Creating your account...';
+
+  // Collect form data
+  const formData = {
+    firstName: document.getElementById('firstName').value,
+    lastName: document.getElementById('lastName').value,
+    email: document.getElementById('email').value,
+    password: document.getElementById('password').value,
+    agencyName: document.getElementById('agencyName').value,
+    phone: document.getElementById('phone').value,
+    producerCount: document.getElementById('producerCount').value,
+    address: document.getElementById('address').value,
+    city: document.getElementById('city').value,
+    state: document.getElementById('state').value,
+    zip: document.getElementById('zip').value,
+    plan: currentPlan,
+    stripePriceId: STRIPE_PRICE_IDS[currentPlan]
+  };
+
+  // ==========================================================================
+  // PRODUCTION STRIPE FLOW (commented out until keys are added)
+  // ==========================================================================
+  // if (stripe) {
+  //   // 1. Create Stripe payment method from card element
+  //   const cardElement = stripe.elements().create('card');
+  //   const { error, paymentMethod } = await stripe.createPaymentMethod({
+  //     type: 'card',
+  //     card: cardElement,
+  //     billing_details: {
+  //       name: formData.firstName + ' ' + formData.lastName,
+  //       email: formData.email,
+  //       address: {
+  //         line1: formData.address,
+  //         city: formData.city,
+  //         state: formData.state,
+  //         postal_code: formData.zip
+  //       }
+  //     }
+  //   });
+  //   if (error) {
+  //     alert(error.message);
+  //     resetButton();
+  //     return;
+  //   }
+  //
+  //   // 2. Send to your backend to create customer + subscription with trial
+  //   const response = await fetch('/api/create-subscription', {
+  //     method: 'POST',
+  //     headers: {'Content-Type': 'application/json'},
+  //     body: JSON.stringify({
+  //       ...formData,
+  //       paymentMethodId: paymentMethod.id,
+  //       priceId: STRIPE_PRICE_IDS[currentPlan],
+  //       trialDays: 14
+  //     })
+  //   });
+  //   const result = await response.json();
+  //   if (result.error) {
+  //     alert(result.error);
+  //     resetButton();
+  //     return;
+  //   }
+  // }
+
+  // ==========================================================================
+  // DEMO FLOW: Save user to localStorage so the CRM login system can find them
+  // ==========================================================================
+  try {
+    const USERS_KEY = 'carrierBase_users_v1';
+    const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+    
+    // Check if email already exists
+    if (users.find(u => u.email.toLowerCase() === formData.email.toLowerCase())) {
+      alert('An account with this email already exists. Please sign in instead.');
+      resetButton();
+      return;
+    }
+    
+    const newUser = {
+      id: 'u' + Date.now(),
+      email: formData.email,
+      password: formData.password, // Note: In production, this would be hashed server-side
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      fullName: formData.firstName + ' ' + formData.lastName,
+      agencyName: formData.agencyName,
+      phone: formData.phone,
+      producerCount: formData.producerCount,
+      address: formData.address,
+      city: formData.city,
+      state: formData.state,
+      zip: formData.zip,
+      plan: currentPlan,
+      role: 'admin', // First user from a signup is agency admin (can invite team)
+      trialStart: new Date().toISOString(),
+      trialEnd: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+      subscriptionStatus: 'trialing',
+      stripeCustomerId: 'cus_demo_' + Date.now(), // Would come from Stripe in production
+      stripeSubscriptionId: 'sub_demo_' + Date.now(),
+      createdAt: new Date().toISOString(),
+      lastLogin: null,
+      loginCount: 0,
+      usage: {
+        accountsCreated: 0,
+        applicationsCompleted: 0,
+        mvrsRun: 0,
+        emailsSent: 0
+      }
+    };
+    
+    users.push(newUser);
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    
+    // Log the signup event for admin tracking
+    const EVENTS_KEY = 'carrierBase_events_v1';
+    const events = JSON.parse(localStorage.getItem(EVENTS_KEY) || '[]');
+    events.push({
+      id: 'evt' + Date.now(),
+      type: 'signup',
+      userId: newUser.id,
+      email: newUser.email,
+      plan: currentPlan,
+      amount: PLANS[currentPlan].price,
+      timestamp: new Date().toISOString()
+    });
+    localStorage.setItem(EVENTS_KEY, JSON.stringify(events));
+    
+    // Show success overlay
+    setTimeout(() => {
+      document.getElementById('successEmail').textContent = formData.email;
+      document.getElementById('successOverlay').classList.add('open');
+    }, 1200);
+  } catch (err) {
+    alert('Error creating account: ' + err.message);
+    resetButton();
+  }
+}
+
+function resetButton() {
+  const btn = document.getElementById('submitBtn');
+  btn.classList.remove('processing');
+  btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="cur
